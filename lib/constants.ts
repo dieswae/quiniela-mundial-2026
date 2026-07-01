@@ -1,4 +1,4 @@
-export const PARTICIPANTS = ["Diego", "Dervin", "Chucho", "Paul", "Gabo", "Josue"] as const
+export const PARTICIPANTS = ["Diego", "Dervin", "Chucho", "Paul", "Gabo", "Josue", "Manu"] as const
 
 export type Participant = (typeof PARTICIPANTS)[number]
 

@@ -10,6 +10,7 @@ import type { Advancer, Match, Prediction } from "@/lib/types"
 import type { QuinielaData } from "@/hooks/use-quiniela"
 import { Button } from "@/components/ui/button"
 import { ScoreInput } from "@/components/score-input"
+import { SpecialPicks } from "@/components/special-picks"
 import { cn } from "@/lib/utils"
 
 interface PredictionsViewProps {
@@ -18,7 +19,7 @@ interface PredictionsViewProps {
 }
 
 export function PredictionsView({ data, participant }: PredictionsViewProps) {
-  const { matches, predictions, rounds, loading } = data
+  const { matches, predictions, rounds, specials, loading } = data
 
   const openRounds = useMemo(
     () =>
@@ -36,16 +37,7 @@ export function PredictionsView({ data, participant }: PredictionsViewProps) {
     return <LoadingState />
   }
 
-  if (openRounds.length === 0) {
-    return (
-      <EmptyState
-        title="No hay rondas abiertas"
-        description="El administrador todavía no ha abierto ninguna ronda para pronosticar. Vuelve más tarde."
-      />
-    )
-  }
-
-  const roundMatches = matches.filter((m) => m.round === currentRound)
+  const roundMatches = currentRound ? matches.filter((m) => m.round === currentRound) : []
 
   return (
     <div className="flex flex-col gap-4">
@@ -56,45 +48,61 @@ export function PredictionsView({ data, participant }: PredictionsViewProps) {
         </p>
       </div>
 
-      {openRounds.length > 1 ? (
-        <div className="flex flex-wrap gap-2">
-          {openRounds.map((r) => (
-            <Button
-              key={r}
-              size="sm"
-              variant={r === currentRound ? "default" : "outline"}
-              onClick={() => setActiveRound(r)}
-            >
-              {ROUND_MAP[r].shortLabel}
-            </Button>
-          ))}
-        </div>
-      ) : null}
+      <SpecialPicks
+        matches={matches}
+        specials={specials}
+        participant={participant}
+        onSaved={data.refresh}
+      />
 
-      <div className="flex items-center justify-between rounded-lg bg-secondary px-3 py-2">
-        <span className="text-sm font-semibold text-secondary-foreground">
-          {currentRound ? ROUND_MAP[currentRound].label : ""}
-        </span>
-        <span className="text-xs text-muted-foreground">
-          {roundMatches.filter((m) => hasPrediction(predictions, participant, m.id)).length}/
-          {roundMatches.length} enviados
-        </span>
-      </div>
+      {openRounds.length === 0 ? (
+        <EmptyState
+          title="No hay rondas abiertas"
+          description="El administrador todavía no ha abierto ninguna ronda para pronosticar. Vuelve más tarde."
+        />
+      ) : (
+        <>
+          {openRounds.length > 1 ? (
+            <div className="flex flex-wrap gap-2">
+              {openRounds.map((r) => (
+                <Button
+                  key={r}
+                  size="sm"
+                  variant={r === currentRound ? "default" : "outline"}
+                  onClick={() => setActiveRound(r)}
+                >
+                  {ROUND_MAP[r].shortLabel}
+                </Button>
+              ))}
+            </div>
+          ) : null}
 
-      <div className="flex flex-col gap-3">
-        {roundMatches.map((match) => (
-          <PredictionCard
-            key={match.id}
-            match={match}
-            matches={matches}
-            participant={participant}
-            existing={predictions.find(
-              (p) => p.participant === participant && p.match_id === match.id,
-            )}
-            onSaved={data.refresh}
-          />
-        ))}
-      </div>
+          <div className="flex items-center justify-between rounded-lg bg-secondary px-3 py-2">
+            <span className="text-sm font-semibold text-secondary-foreground">
+              {currentRound ? ROUND_MAP[currentRound].label : ""}
+            </span>
+            <span className="text-xs text-muted-foreground">
+              {roundMatches.filter((m) => hasPrediction(predictions, participant, m.id)).length}/
+              {roundMatches.length} enviados
+            </span>
+          </div>
+
+          <div className="flex flex-col gap-3">
+            {roundMatches.map((match) => (
+              <PredictionCard
+                key={match.id}
+                match={match}
+                matches={matches}
+                participant={participant}
+                existing={predictions.find(
+                  (p) => p.participant === participant && p.match_id === match.id,
+                )}
+                onSaved={data.refresh}
+              />
+            ))}
+          </div>
+        </>
+      )}
     </div>
   )
 }

@@ -13,12 +13,12 @@ interface LeaderboardProps {
 }
 
 export function Leaderboard({ data }: LeaderboardProps) {
-  const { matches, predictions, loading } = data
+  const { matches, predictions, specials, loading } = data
   const [selected, setSelected] = useState<string | null>(null)
 
   const standings = useMemo(
-    () => computeStandings(PARTICIPANTS, matches, predictions),
-    [matches, predictions],
+    () => computeStandings(PARTICIPANTS, matches, predictions, specials),
+    [matches, predictions, specials],
   )
 
   const totalScored = matches.filter(
@@ -68,6 +68,7 @@ export function Leaderboard({ data }: LeaderboardProps) {
               <p className="font-semibold leading-tight">{row.participant}</p>
               <p className="text-xs text-muted-foreground">
                 {row.exactCount} exactos · {row.resultPoints} resultado · {row.advancePoints} avance
+                {row.specialPoints > 0 ? ` · ${row.specialPoints} especial` : ""}
               </p>
             </div>
             <div className="flex items-center gap-1">
@@ -87,6 +88,7 @@ export function Leaderboard({ data }: LeaderboardProps) {
         participant={selected}
         matches={matches}
         predictions={predictions}
+        specials={specials}
         open={selected !== null}
         onOpenChange={(o) => !o && setSelected(null)}
       />

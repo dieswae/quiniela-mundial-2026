@@ -31,3 +31,13 @@ export interface RoundConfig {
   label: string
   is_open: boolean
 }
+
+export type SpecialCategory = "campeon" | "tercer_lugar"
+
+export interface SpecialPrediction {
+  id: string
+  participant: string
+  category: SpecialCategory
+  team: string
+  submitted_at: string
+}

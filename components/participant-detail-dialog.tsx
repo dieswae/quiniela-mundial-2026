@@ -3,7 +3,7 @@
 import { ROUND_MAP, ROUND_ORDER } from "@/lib/constants"
 import { resolveSlot } from "@/lib/bracket"
 import { computeMatchPoints } from "@/lib/scoring"
-import type { Match, Prediction } from "@/lib/types"
+import type { Match, Prediction, SpecialPrediction } from "@/lib/types"
 import {
   Dialog,
   DialogContent,
@@ -17,6 +17,7 @@ interface ParticipantDetailDialogProps {
   participant: string | null
   matches: Match[]
   predictions: Prediction[]
+  specials: SpecialPrediction[]
   open: boolean
   onOpenChange: (open: boolean) => void
 }
@@ -25,6 +26,7 @@ export function ParticipantDetailDialog({
   participant,
   matches,
   predictions,
+  specials,
   open,
   onOpenChange,
 }: ParticipantDetailDialogProps) {
@@ -34,6 +36,11 @@ export function ParticipantDetailDialog({
     (m) => m.official_score1 !== null && m.official_score2 !== null,
   )
 
+  const champPick = specials.find((s) => s.participant === participant && s.category === "campeon")
+  const thirdPick = specials.find(
+    (s) => s.participant === participant && s.category === "tercer_lugar",
+  )
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-h-[80dvh] max-w-md overflow-y-auto">
@@ -41,6 +48,24 @@ export function ParticipantDetailDialog({
           <DialogTitle>{participant}</DialogTitle>
           <DialogDescription>Puntos obtenidos en partidos ya jugados</DialogDescription>
         </DialogHeader>
+
+        {champPick || thirdPick ? (
+          <div className="flex flex-col gap-1.5 rounded-lg border px-3 py-2 text-sm">
+            <p className="text-xs font-medium text-muted-foreground">Campeón y Tercer Lugar</p>
+            {champPick ? (
+              <p className="flex items-center justify-between">
+                <span>Campeón: {champPick.team}</span>
+                <span className="text-xs text-muted-foreground">+10 si acierta</span>
+              </p>
+            ) : null}
+            {thirdPick ? (
+              <p className="flex items-center justify-between">
+                <span>Tercer lugar: {thirdPick.team}</span>
+                <span className="text-xs text-muted-foreground">+4 si acierta</span>
+              </p>
+            ) : null}
+          </div>
+        ) : null}
 
         {scored.length === 0 ? (
           <p className="py-6 text-center text-sm text-muted-foreground">
