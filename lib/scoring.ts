@@ -27,10 +27,15 @@ export interface MatchPoints {
  * Computes the points a single prediction earns for a match.
  * Category A (Resultado): 3 exact score, 1 right outcome, else 0.
  * Category B (Avance): solo existe en dieciseisavos, octavos, cuartos y
- * semifinal, y solo si el partido se definió por penales (empate a 120 min).
- * 1 punto si predijiste un ganador directo que resultó ser quien avanzó por
- * penales, o 2 puntos si predijiste el empate y también acertaste quién
- * avanzaba por penales.
+ * semifinal, y solo cuando tu predicción o el resultado real (o ambos) se
+ * definieron por penales (empate a 120 min):
+ *  - 2 puntos si tanto tu predicción como el resultado real fueron empate a
+ *    120 min, y acertaste además quién avanzaba por penales.
+ *  - 1 punto si solo uno de los dos (tu predicción o el resultado real) fue
+ *    empate a 120 min, pero el equipo que dijiste que avanzaba coincide con
+ *    el que avanzó de verdad (sea porque ganó directo o por penales).
+ *  - 0 si ninguno de los dos fue empate: ahí el acierto del ganador ya se
+ *    premia en la Categoría A (Resultado).
  * Los partidos de Tercer Lugar y Final NO otorgan avance aquí: el bono de
  * acertar el tercer lugar (4) y el campeón (10) se maneja por separado, como
  * una predicción especial hecha con anticipación (ver computeSpecialPoints).
@@ -66,11 +71,20 @@ export function computeMatchPoints(match: Match, pred: Prediction | undefined): 
 
   // Category B — Avance (no aplica en tercer_lugar ni final, ver docstring arriba)
   let advance = 0
-  if (match.round !== "tercer_lugar" && match.round !== "final" && officialDraw) {
+  if (match.round !== "tercer_lugar" && match.round !== "final") {
+    const predDraw = pred.pred_score1 === pred.pred_score2
     const predAdvancer = resolveAdvancer(pred.pred_score1, pred.pred_score2, pred.pred_advancer)
     if (officialAdvancer && predAdvancer && officialAdvancer === predAdvancer) {
-      const predDraw = pred.pred_score1 === pred.pred_score2
-      advance = predDraw ? 2 : 1
+      if (predDraw && officialDraw) {
+        // Predijiste penales y el partido real también se definió por penales.
+        advance = 2
+      } else if (predDraw !== officialDraw) {
+        // Solo uno de los dos (tu predicción o la realidad) fue por penales,
+        // pero acertaste igual qué equipo terminó avanzando.
+        advance = 1
+      }
+      // Si ninguno fue por penales (ambos directos), no hay avance aquí: ya
+      // se premió el acierto del ganador en la Categoría A (Resultado).
     }
   }
 

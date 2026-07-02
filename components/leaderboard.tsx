@@ -6,6 +6,7 @@ import { PARTICIPANTS } from "@/lib/constants"
 import { computeStandings } from "@/lib/scoring"
 import type { QuinielaData } from "@/hooks/use-quiniela"
 import { ParticipantDetailDialog } from "@/components/participant-detail-dialog"
+import { RulesDialog } from "@/components/rules-dialog"
 import { cn } from "@/lib/utils"
 
 interface LeaderboardProps {
@@ -37,11 +38,14 @@ export function Leaderboard({ data }: LeaderboardProps) {
 
   return (
     <div className="flex flex-col gap-4">
-      <div>
-        <h2 className="text-xl font-bold">Tabla de posiciones</h2>
-        <p className="text-sm text-muted-foreground">
-          {totalScored} partido{totalScored === 1 ? "" : "s"} con resultado oficial
-        </p>
+      <div className="flex items-center justify-between gap-3">
+        <div>
+          <h2 className="text-xl font-bold">Tabla de posiciones</h2>
+          <p className="text-sm text-muted-foreground">
+            {totalScored} partido{totalScored === 1 ? "" : "s"} con resultado oficial
+          </p>
+        </div>
+        <RulesDialog />
       </div>
 
       <div className="flex flex-col gap-2">
