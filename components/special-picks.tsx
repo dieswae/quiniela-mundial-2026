@@ -7,6 +7,14 @@ import { createClient } from "@/lib/supabase/client"
 import type { Match, SpecialCategory, SpecialPrediction } from "@/lib/types"
 import { Button } from "@/components/ui/button"
 import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
+import {
   Select,
   SelectContent,
   SelectItem,
@@ -95,9 +103,10 @@ interface PickRowProps {
 function PickRow({ category, teams, existing, otherPickedTeam, participant, onSaved }: PickRowProps) {
   const [team, setTeam] = useState<string>(existing?.team ?? "")
   const [saving, setSaving] = useState(false)
+  const [confirmOpen, setConfirmOpen] = useState(false)
   const locked = Boolean(existing)
 
-  async function handleSubmit() {
+  function handleOpenConfirm() {
     if (!team) {
       toast.error("Elige un equipo primero.")
       return
@@ -106,6 +115,10 @@ function PickRow({ category, teams, existing, otherPickedTeam, participant, onSa
       toast.error("Ya elegiste ese equipo para la otra categoría. Debe ser un equipo distinto.")
       return
     }
+    setConfirmOpen(true)
+  }
+
+  async function handleConfirmedSubmit() {
     setSaving(true)
     const supabase = createClient()
     const { error } = await supabase.from("special_predictions").insert({
@@ -114,6 +127,7 @@ function PickRow({ category, teams, existing, otherPickedTeam, participant, onSa
       team,
     })
     setSaving(false)
+    setConfirmOpen(false)
     if (error) {
       console.log("[v0] insert special prediction error:", error)
       if (error.code === "23505") {
@@ -163,11 +177,41 @@ function PickRow({ category, teams, existing, otherPickedTeam, participant, onSa
               ))}
             </SelectContent>
           </Select>
-          <Button size="sm" onClick={handleSubmit} disabled={saving || !team}>
+          <Button size="sm" onClick={handleOpenConfirm} disabled={saving || !team}>
             {saving ? "..." : "Enviar"}
           </Button>
         </div>
       )}
+
+      <Dialog open={confirmOpen} onOpenChange={setConfirmOpen}>
+        <DialogContent className="max-w-sm">
+          <DialogHeader>
+            <DialogTitle>¿Confirmar {CATEGORY_LABEL[category].toLowerCase()}?</DialogTitle>
+            <DialogDescription>
+              Esta predicción vale {CATEGORY_POINTS[category]} puntos y no se puede editar
+              después. Se evalúa recién cuando termine el Mundial.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="rounded-lg border bg-secondary/40 px-4 py-3 text-center">
+            <p className="text-sm font-semibold">{team}</p>
+          </div>
+
+          <DialogFooter className="gap-2 sm:gap-2">
+            <Button
+              variant="outline"
+              className="flex-1"
+              onClick={() => setConfirmOpen(false)}
+              disabled={saving}
+            >
+              Revisar de nuevo
+            </Button>
+            <Button className="flex-1" onClick={handleConfirmedSubmit} disabled={saving}>
+              {saving ? "Guardando..." : "Sí, confirmar"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

@@ -30,8 +30,8 @@ export function QuinielaApp() {
   }
 
   return (
-    <div className="mx-auto flex min-h-dvh w-full max-w-2xl flex-col">
-      <header className="sticky top-0 z-20 border-b bg-background/90 backdrop-blur">
+    <div className="mx-auto flex h-dvh w-full max-w-2xl flex-col overflow-hidden">
+      <header className="sticky top-0 z-20 shrink-0 border-b bg-background/90 backdrop-blur">
         <div className="flex items-center justify-between px-4 py-3">
           <div className="flex items-center gap-2">
             <div className="flex size-9 items-center justify-center rounded-lg bg-primary text-primary-foreground">
@@ -54,8 +54,8 @@ export function QuinielaApp() {
         </div>
       </header>
 
-      <Tabs value={tab} onValueChange={setTab} className="flex flex-1 flex-col gap-0">
-        <main className="flex-1 px-4 py-5 pb-24">
+      <Tabs value={tab} onValueChange={setTab} className="flex flex-1 flex-col gap-0 overflow-hidden">
+        <main className="flex-1 overflow-y-auto px-4 py-5">
           <TabsContent value="pronosticos" className="mt-0">
             <PredictionsView data={data} participant={participant} />
           </TabsContent>
@@ -70,7 +70,7 @@ export function QuinielaApp() {
           </TabsContent>
         </main>
 
-        <TabsList className="fixed inset-x-0 bottom-0 z-20 mx-auto grid h-auto w-full max-w-2xl grid-cols-4 gap-0 rounded-none border-t bg-background p-0">
+        <TabsList className="grid h-auto w-full shrink-0 grid-cols-4 gap-0 rounded-none border-t bg-background p-0 pb-[env(safe-area-inset-bottom)]">
           <TabBarItem value="pronosticos" icon={<ClipboardList className="size-5" />} label="Pronósticos" />
           <TabBarItem value="tabla" icon={<ListOrdered className="size-5" />} label="Tabla" />
           <TabBarItem value="cuadro" icon={<Network className="size-5" />} label="Cuadro" />

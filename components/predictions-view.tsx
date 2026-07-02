@@ -9,6 +9,14 @@ import { resolveSlot } from "@/lib/bracket"
 import type { Advancer, Match, Prediction } from "@/lib/types"
 import type { QuinielaData } from "@/hooks/use-quiniela"
 import { Button } from "@/components/ui/button"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
 import { ScoreInput } from "@/components/score-input"
 import { SpecialPicks } from "@/components/special-picks"
 import { cn } from "@/lib/utils"
@@ -130,15 +138,20 @@ function PredictionCard({ match, matches, participant, existing, onSaved }: Pred
   const [score2, setScore2] = useState<number>(existing?.pred_score2 ?? 0)
   const [advancer, setAdvancer] = useState<Advancer | null>(existing?.pred_advancer ?? null)
   const [saving, setSaving] = useState(false)
+  const [confirmOpen, setConfirmOpen] = useState(false)
 
   const locked = Boolean(existing) || match.round_locked
   const isDraw = score1 === score2
 
-  async function handleSubmit() {
+  function handleOpenConfirm() {
     if (isDraw && !advancer) {
       toast.error("Empate: elige qué equipo avanza por penales.")
       return
     }
+    setConfirmOpen(true)
+  }
+
+  async function handleConfirmedSubmit() {
     setSaving(true)
     const supabase = createClient()
     const { error } = await supabase.from("predictions").insert({
@@ -149,6 +162,7 @@ function PredictionCard({ match, matches, participant, existing, onSaved }: Pred
       pred_advancer: isDraw ? advancer : null,
     })
     setSaving(false)
+    setConfirmOpen(false)
     if (error) {
       console.log("[v0] insert prediction error:", error)
       if (error.code === "23505") {
@@ -259,7 +273,7 @@ function PredictionCard({ match, matches, participant, existing, onSaved }: Pred
           ) : match.round_locked ? null : (
             <Button
               className="mt-4 w-full"
-              onClick={handleSubmit}
+              onClick={handleOpenConfirm}
               disabled={saving || !teamsResolved}
             >
               {saving ? "Guardando..." : "Enviar pronóstico"}
@@ -267,6 +281,42 @@ function PredictionCard({ match, matches, participant, existing, onSaved }: Pred
           )}
         </>
       )}
+
+      <Dialog open={confirmOpen} onOpenChange={setConfirmOpen}>
+        <DialogContent className="max-w-sm">
+          <DialogHeader>
+            <DialogTitle>¿Confirmar pronóstico?</DialogTitle>
+            <DialogDescription>
+              Una vez enviado no se puede editar, revisa bien antes de confirmar.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="rounded-lg border bg-secondary/40 px-4 py-3 text-center">
+            <p className="text-sm font-semibold">
+              {team1Name} {score1} - {score2} {team2Name}
+            </p>
+            {isDraw ? (
+              <p className="mt-1 text-xs text-muted-foreground">
+                Avanza por penales: {advancer === "team1" ? team1Name : team2Name}
+              </p>
+            ) : null}
+          </div>
+
+          <DialogFooter className="gap-2 sm:gap-2">
+            <Button
+              variant="outline"
+              className="flex-1"
+              onClick={() => setConfirmOpen(false)}
+              disabled={saving}
+            >
+              Revisar de nuevo
+            </Button>
+            <Button className="flex-1" onClick={handleConfirmedSubmit} disabled={saving}>
+              {saving ? "Guardando..." : "Sí, confirmar"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
