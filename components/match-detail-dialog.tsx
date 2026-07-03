@@ -12,6 +12,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog"
 import { Badge } from "@/components/ui/badge"
+import { TeamFlag } from "@/components/team-flag"
 import { cn } from "@/lib/utils"
 
 interface MatchDetailDialogProps {
@@ -55,11 +56,17 @@ export function MatchDetailDialog({
 
         <div className="rounded-lg bg-secondary p-3 text-center">
           <div className="flex items-center justify-center gap-3 text-sm font-semibold">
-            <span className="flex-1 text-right text-balance">{team1}</span>
-            <span className="rounded bg-background px-2 py-1 tabular-nums">
+            <span className="flex min-w-0 flex-1 items-center justify-end gap-1.5">
+              <span className="min-w-0 truncate">{team1}</span>
+              <TeamFlag name={slot1.name} />
+            </span>
+            <span className="shrink-0 rounded bg-background px-2 py-1 tabular-nums">
               {hasOfficial ? `${match.official_score1} - ${match.official_score2}` : "vs"}
             </span>
-            <span className="flex-1 text-left text-balance">{team2}</span>
+            <span className="flex min-w-0 flex-1 items-center justify-start gap-1.5">
+              <TeamFlag name={slot2.name} />
+              <span className="min-w-0 truncate">{team2}</span>
+            </span>
           </div>
           {hasOfficial ? (
             <p className="mt-2 text-xs text-muted-foreground">

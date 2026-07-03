@@ -7,6 +7,7 @@ import { resolveAdvancer } from "@/lib/scoring"
 import type { Match } from "@/lib/types"
 import type { QuinielaData } from "@/hooks/use-quiniela"
 import { MatchDetailDialog } from "@/components/match-detail-dialog"
+import { TeamFlag } from "@/components/team-flag"
 import { cn } from "@/lib/utils"
 
 interface BracketViewProps {
@@ -127,13 +128,14 @@ function BracketRow({
     >
       <span
         className={cn(
-          "min-w-0 flex-1 truncate text-xs",
+          "flex min-w-0 flex-1 items-center gap-1.5 text-xs",
           name ? "font-medium" : "italic text-muted-foreground",
           decided && winner && "font-bold text-primary",
           decided && !winner && name && "text-muted-foreground",
         )}
       >
-        {name ?? placeholder ?? "Por definir"}
+        <TeamFlag name={name} />
+        <span className="min-w-0 truncate">{name ?? placeholder ?? "Por definir"}</span>
       </span>
       <span className="w-4 text-center text-xs font-bold tabular-nums text-muted-foreground">
         {score ?? ""}

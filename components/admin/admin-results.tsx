@@ -10,6 +10,7 @@ import type { Advancer, Match } from "@/lib/types"
 import type { QuinielaData } from "@/hooks/use-quiniela"
 import { Button } from "@/components/ui/button"
 import { ScoreInput } from "@/components/score-input"
+import { TeamFlag } from "@/components/team-flag"
 import { cn } from "@/lib/utils"
 
 interface AdminResultsProps {
@@ -110,18 +111,22 @@ function ResultEditor({
         ) : null}
       </div>
 
-      <div className="flex items-center justify-between gap-2">
-        <span className="flex-1 text-right text-sm font-semibold leading-tight text-balance">
-          {team1}
-        </span>
-        <div className="flex items-center gap-2">
+      <div className="flex items-start justify-center gap-3">
+        <div className="flex w-20 flex-col items-center gap-1.5 text-center">
+          <TeamFlag name={slot1.name} className="h-8 w-12 rounded" />
+          <span className="line-clamp-2 text-xs font-medium leading-tight">{team1}</span>
+        </div>
+
+        <div className="flex shrink-0 items-center gap-2 pt-1">
           <ScoreInput value={score1} onChange={setScore1} disabled={!teamsResolved} />
           <span className="text-muted-foreground">-</span>
           <ScoreInput value={score2} onChange={setScore2} disabled={!teamsResolved} />
         </div>
-        <span className="flex-1 text-left text-sm font-semibold leading-tight text-balance">
-          {team2}
-        </span>
+
+        <div className="flex w-20 flex-col items-center gap-1.5 text-center">
+          <TeamFlag name={slot2.name} className="h-8 w-12 rounded" />
+          <span className="line-clamp-2 text-xs font-medium leading-tight">{team2}</span>
+        </div>
       </div>
 
       {!teamsResolved ? (

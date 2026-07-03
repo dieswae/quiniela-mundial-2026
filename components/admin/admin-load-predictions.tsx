@@ -16,6 +16,7 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { ScoreInput } from "@/components/score-input"
+import { TeamFlag } from "@/components/team-flag"
 
 interface AdminLoadPredictionsProps {
   data: QuinielaData
@@ -138,11 +139,13 @@ function ManualPredEditor({
         <span className="text-xs font-medium text-muted-foreground">Partido {match.position}</span>
         {locked ? <span className="text-xs font-medium text-primary">Ya cargado</span> : null}
       </div>
-      <div className="flex items-center justify-between gap-2">
-        <span className="flex-1 text-right text-sm font-semibold leading-tight text-balance">
-          {team1}
-        </span>
-        <div className="flex items-center gap-2">
+      <div className="flex items-start justify-center gap-3">
+        <div className="flex w-20 flex-col items-center gap-1.5 text-center">
+          <TeamFlag name={slot1.name} className="h-8 w-12 rounded" />
+          <span className="line-clamp-2 text-xs font-medium leading-tight">{team1}</span>
+        </div>
+
+        <div className="flex shrink-0 items-center gap-2 pt-1">
           <ScoreInput
             value={existing ? existing.pred_score1 : score1}
             onChange={setScore1}
@@ -155,9 +158,11 @@ function ManualPredEditor({
             disabled={locked || !teamsResolved}
           />
         </div>
-        <span className="flex-1 text-left text-sm font-semibold leading-tight text-balance">
-          {team2}
-        </span>
+
+        <div className="flex w-20 flex-col items-center gap-1.5 text-center">
+          <TeamFlag name={slot2.name} className="h-8 w-12 rounded" />
+          <span className="line-clamp-2 text-xs font-medium leading-tight">{team2}</span>
+        </div>
       </div>
 
       {!teamsResolved ? (

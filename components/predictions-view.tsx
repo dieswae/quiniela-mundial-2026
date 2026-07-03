@@ -19,6 +19,7 @@ import {
 } from "@/components/ui/dialog"
 import { ScoreInput } from "@/components/score-input"
 import { SpecialPicks } from "@/components/special-picks"
+import { TeamFlag } from "@/components/team-flag"
 import { cn } from "@/lib/utils"
 
 interface PredictionsViewProps {
@@ -198,11 +199,13 @@ function PredictionCard({ match, matches, participant, existing, onSaved }: Pred
         ) : null}
       </div>
 
-      <div className="flex items-center justify-between gap-2">
-        <span className="flex-1 text-right text-sm font-semibold leading-tight text-balance">
-          {team1Name}
-        </span>
-        <div className="flex items-center gap-2">
+      <div className="flex items-start justify-center gap-3">
+        <div className="flex w-20 flex-col items-center gap-1.5 text-center">
+          <TeamFlag name={slot1.name} className="h-8 w-12 rounded" />
+          <span className="line-clamp-2 text-xs font-medium leading-tight">{team1Name}</span>
+        </div>
+
+        <div className="flex shrink-0 items-center gap-2 pt-1">
           <ScoreInput
             value={existing ? existing.pred_score1 : score1}
             onChange={setScore1}
@@ -217,9 +220,11 @@ function PredictionCard({ match, matches, participant, existing, onSaved }: Pred
             label={`Goles ${team2Name}`}
           />
         </div>
-        <span className="flex-1 text-left text-sm font-semibold leading-tight text-balance">
-          {team2Name}
-        </span>
+
+        <div className="flex w-20 flex-col items-center gap-1.5 text-center">
+          <TeamFlag name={slot2.name} className="h-8 w-12 rounded" />
+          <span className="line-clamp-2 text-xs font-medium leading-tight">{team2Name}</span>
+        </div>
       </div>
 
       {!teamsResolved ? (
@@ -292,8 +297,10 @@ function PredictionCard({ match, matches, participant, existing, onSaved }: Pred
           </DialogHeader>
 
           <div className="rounded-lg border bg-secondary/40 px-4 py-3 text-center">
-            <p className="text-sm font-semibold">
+            <p className="flex items-center justify-center gap-2 text-sm font-semibold">
+              <TeamFlag name={slot1.name} />
               {team1Name} {score1} - {score2} {team2Name}
+              <TeamFlag name={slot2.name} />
             </p>
             {isDraw ? (
               <p className="mt-1 text-xs text-muted-foreground">
@@ -302,16 +309,20 @@ function PredictionCard({ match, matches, participant, existing, onSaved }: Pred
             ) : null}
           </div>
 
-          <DialogFooter className="gap-2 sm:gap-2">
+          <DialogFooter className="flex-row gap-3">
             <Button
-              variant="outline"
-              className="flex-1"
+              variant="destructive"
+              className="h-11 flex-1 text-sm"
               onClick={() => setConfirmOpen(false)}
               disabled={saving}
             >
               Revisar de nuevo
             </Button>
-            <Button className="flex-1" onClick={handleConfirmedSubmit} disabled={saving}>
+            <Button
+              className="h-11 flex-1 border border-green-600/20 bg-green-600/10 text-green-700 hover:bg-green-600/20 dark:bg-green-500/15 dark:text-green-400 dark:hover:bg-green-500/25"
+              onClick={handleConfirmedSubmit}
+              disabled={saving}
+            >
               {saving ? "Guardando..." : "Sí, confirmar"}
             </Button>
           </DialogFooter>

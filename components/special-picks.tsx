@@ -21,6 +21,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import { TeamFlag } from "@/components/team-flag"
 import { cn } from "@/lib/utils"
 
 interface SpecialPicksProps {
@@ -161,7 +162,9 @@ function PickRow({ category, teams, existing, otherPickedTeam, participant, onSa
 
       {locked ? (
         <p className="flex items-center gap-1.5 text-sm font-semibold">
-          <CheckCircle2 className="size-3.5 text-primary" /> {existing!.team}
+          <CheckCircle2 className="size-3.5 text-primary" />
+          <TeamFlag name={existing!.team} />
+          {existing!.team}
         </p>
       ) : (
         <div className="flex items-center gap-2">
@@ -172,7 +175,10 @@ function PickRow({ category, teams, existing, otherPickedTeam, participant, onSa
             <SelectContent>
               {teams.map((t) => (
                 <SelectItem key={t} value={t}>
-                  {t}
+                  <span className="flex items-center gap-2">
+                    <TeamFlag name={t} />
+                    {t}
+                  </span>
                 </SelectItem>
               ))}
             </SelectContent>
@@ -194,19 +200,26 @@ function PickRow({ category, teams, existing, otherPickedTeam, participant, onSa
           </DialogHeader>
 
           <div className="rounded-lg border bg-secondary/40 px-4 py-3 text-center">
-            <p className="text-sm font-semibold">{team}</p>
+            <p className="flex items-center justify-center gap-2 text-sm font-semibold">
+              <TeamFlag name={team} />
+              {team}
+            </p>
           </div>
 
-          <DialogFooter className="gap-2 sm:gap-2">
+          <DialogFooter className="flex-row gap-3">
             <Button
-              variant="outline"
-              className="flex-1"
+              variant="destructive"
+              className="h-11 flex-1 text-sm"
               onClick={() => setConfirmOpen(false)}
               disabled={saving}
             >
               Revisar de nuevo
             </Button>
-            <Button className="flex-1" onClick={handleConfirmedSubmit} disabled={saving}>
+            <Button
+              className="h-11 flex-1 border border-green-600/20 bg-green-600/10 text-green-700 hover:bg-green-600/20 dark:bg-green-500/15 dark:text-green-400 dark:hover:bg-green-500/25"
+              onClick={handleConfirmedSubmit}
+              disabled={saving}
+            >
               {saving ? "Guardando..." : "Sí, confirmar"}
             </Button>
           </DialogFooter>

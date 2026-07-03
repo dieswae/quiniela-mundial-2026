@@ -1,7 +1,6 @@
 "use client"
 
-import { Minus, Plus } from "lucide-react"
-import { Button } from "@/components/ui/button"
+import { cn } from "@/lib/utils"
 
 interface ScoreInputProps {
   value: number | null
@@ -12,34 +11,33 @@ interface ScoreInputProps {
 
 export function ScoreInput({ value, onChange, disabled, label }: ScoreInputProps) {
   const v = value ?? 0
+
+  function handleChange(raw: string) {
+    const digits = raw.replace(/[^0-9]/g, "")
+    if (digits === "") {
+      onChange(0)
+      return
+    }
+    onChange(Math.min(20, Math.max(0, Number.parseInt(digits, 10))))
+  }
+
   return (
-    <div className="flex flex-col items-center gap-1">
+    <label className="flex flex-col items-center gap-1">
       {label ? <span className="sr-only">{label}</span> : null}
-      <div className="flex items-center gap-1.5">
-        <Button
-          type="button"
-          variant="outline"
-          size="icon"
-          className="size-8 rounded-full"
-          disabled={disabled || v <= 0}
-          onClick={() => onChange(Math.max(0, v - 1))}
-          aria-label="Restar gol"
-        >
-          <Minus className="size-4" />
-        </Button>
-        <span className="w-8 text-center text-2xl font-bold tabular-nums">{v}</span>
-        <Button
-          type="button"
-          variant="outline"
-          size="icon"
-          className="size-8 rounded-full"
-          disabled={disabled || v >= 20}
-          onClick={() => onChange(v + 1)}
-          aria-label="Sumar gol"
-        >
-          <Plus className="size-4" />
-        </Button>
-      </div>
-    </div>
+      <input
+        type="text"
+        inputMode="numeric"
+        pattern="[0-9]*"
+        value={v}
+        onChange={(e) => handleChange(e.target.value)}
+        onFocus={(e) => e.target.select()}
+        disabled={disabled}
+        className={cn(
+          "h-12 w-12 rounded-lg border border-input bg-background text-center text-2xl font-bold tabular-nums outline-none",
+          "focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50",
+          "disabled:opacity-50",
+        )}
+      />
+    </label>
   )
 }
