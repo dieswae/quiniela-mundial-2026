@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { ROUNDS } from "@/lib/constants"
+import { ROUNDS, type RoundName } from "@/lib/constants"
 import { resolveSlot } from "@/lib/bracket"
 import { resolveAdvancer } from "@/lib/scoring"
 import type { Match } from "@/lib/types"
@@ -12,6 +12,19 @@ import { cn } from "@/lib/utils"
 
 interface BracketViewProps {
   data: QuinielaData
+}
+
+// Rondas que dibujan una línea conectora hacia la ronda siguiente (la
+// progresión limpia de "el ganador pasa"). Semifinal queda afuera a
+// propósito: en el orden de columnas, lo que sigue después de semifinal es
+// Tercer Lugar (donde juegan los PERDEDORES), no la Final — dibujar una
+// línea ahí confundiría más de lo que ayuda.
+const CONNECTOR_ROUNDS = new Set<RoundName>(["dieciseisavos", "octavos", "cuartos"])
+
+function chunkPairs<T>(arr: T[]): T[][] {
+  const out: T[][] = []
+  for (let i = 0; i < arr.length; i += 2) out.push(arr.slice(i, i + 2))
+  return out
 }
 
 export function BracketView({ data }: BracketViewProps) {
@@ -32,22 +45,74 @@ export function BracketView({ data }: BracketViewProps) {
       </div>
 
       <div className="-mx-4 overflow-x-auto px-4 pb-2">
-        <div className="flex w-max gap-4">
-          {ROUNDS.map((round) => {
+        <div className="flex w-max gap-6">
+          {ROUNDS.filter((r) => r.name !== "tercer_lugar").map((round) => {
+            if (round.name === "final") {
+              // Columna combinada: Final arriba, Tercer Lugar abajo. Se unen
+              // porque cada una tiene un solo partido — si se dejan como
+              // columnas separadas, cada una queda centrada en el medio de
+              // TODA la altura del cuadro y termina flotando lejos de
+              // semifinal. Juntas como pareja, se posicionan alineadas con
+              // los dos partidos de semifinal (igual que cualquier otra
+              // pareja), sin necesidad de dibujarles línea.
+              const finalMatches = matches.filter((m) => m.round === "final")
+              const tercerLugarMatches = matches.filter((m) => m.round === "tercer_lugar")
+              return (
+                <div key="final-stage" className="flex w-44 shrink-0 flex-col">
+                  <div className="flex flex-1 flex-col justify-around">
+                    {[...finalMatches.map((m) => ({ m, label: "Final" })), ...tercerLugarMatches.map((m) => ({ m, label: "Tercer Lugar" }))].map(
+                      ({ m, label }) => (
+                        <div key={m.id} className="flex flex-col gap-1.5">
+                          <p className="text-center text-xs font-bold text-muted-foreground">
+                            {label}
+                          </p>
+                          <BracketMatch
+                            match={m}
+                            matches={matches}
+                            onClick={() => setSelected(m)}
+                          />
+                        </div>
+                      ),
+                    )}
+                  </div>
+                </div>
+              )
+            }
+
             const roundMatches = matches.filter((m) => m.round === round.name)
+            const showConnectors = CONNECTOR_ROUNDS.has(round.name) && roundMatches.length >= 2
+
             return (
-              <div key={round.name} className="flex w-44 shrink-0 flex-col gap-2">
-                <p className="sticky top-0 text-center text-xs font-bold text-muted-foreground">
+              <div key={round.name} className="flex w-44 shrink-0 flex-col">
+                <p className="mb-2 text-center text-xs font-bold text-muted-foreground">
                   {round.label}
                 </p>
-                {roundMatches.map((match) => (
-                  <BracketMatch
-                    key={match.id}
-                    match={match}
-                    matches={matches}
-                    onClick={() => setSelected(match)}
-                  />
-                ))}
+                <div className="flex flex-1 flex-col justify-around">
+                  {showConnectors
+                    ? chunkPairs(roundMatches).map((pair, idx) => (
+                        <div
+                          key={idx}
+                          className="relative flex flex-col gap-2 after:absolute after:bottom-8 after:left-full after:top-8 after:w-6 after:rounded-r-md after:border-y-2 after:border-r-2 after:border-border after:content-['']"
+                        >
+                          {pair.map((match) => (
+                            <BracketMatch
+                              key={match.id}
+                              match={match}
+                              matches={matches}
+                              onClick={() => setSelected(match)}
+                            />
+                          ))}
+                        </div>
+                      ))
+                    : roundMatches.map((match) => (
+                        <BracketMatch
+                          key={match.id}
+                          match={match}
+                          matches={matches}
+                          onClick={() => setSelected(match)}
+                        />
+                      ))}
+                </div>
               </div>
             )
           })}
@@ -122,7 +187,7 @@ function BracketRow({
   return (
     <div
       className={cn(
-        "flex items-center justify-between gap-2 px-2.5 py-1.5",
+        "flex h-8 items-center justify-between gap-2 px-2.5",
         decided && winner && "bg-primary/10",
       )}
     >

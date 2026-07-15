@@ -1,6 +1,5 @@
 "use client"
 
-import { Trophy } from "lucide-react"
 import { PARTICIPANTS } from "@/lib/constants"
 import { Button } from "@/components/ui/button"
 
@@ -13,9 +12,7 @@ export function ParticipantSelector({ onSelect }: ParticipantSelectorProps) {
     <main className="flex min-h-dvh flex-col items-center justify-center px-5 py-10">
       <div className="w-full max-w-sm">
         <div className="mb-8 flex flex-col items-center text-center">
-          <div className="mb-4 flex size-16 items-center justify-center rounded-2xl bg-primary text-primary-foreground">
-            <Trophy className="size-8" />
-          </div>
+          <img src="/2026.png" alt="Mundial 2026" className="mb-4 h-24 w-24 object-contain" />
           <h1 className="text-2xl font-bold tracking-tight text-balance">
             Quiniela Mundial 2026
           </h1>

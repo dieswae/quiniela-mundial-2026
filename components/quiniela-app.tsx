@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { ClipboardList, ListOrdered, Network, Settings, Trophy, UserRound } from "lucide-react"
+import { ClipboardList, ListOrdered, Network, Settings, UserRound } from "lucide-react"
 import { useParticipant } from "@/hooks/use-participant"
 import { useQuiniela } from "@/hooks/use-quiniela"
 import { ParticipantSelector } from "@/components/participant-selector"
@@ -34,9 +34,7 @@ export function QuinielaApp() {
       <header className="sticky top-0 z-20 shrink-0 border-b bg-background/90 backdrop-blur">
         <div className="flex items-center justify-between px-4 py-3">
           <div className="flex items-center gap-2">
-            <div className="flex size-9 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-              <Trophy className="size-5" />
-            </div>
+            <img src="/2026.png" alt="Mundial 2026" className="h-11 w-11 shrink-0 object-contain" />
             <div className="leading-tight">
               <p className="text-sm font-bold">Quiniela 2026</p>
               <p className="text-xs text-muted-foreground">Fase eliminatoria</p>
